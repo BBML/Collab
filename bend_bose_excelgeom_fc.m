@@ -2,6 +2,7 @@ function [ ]  = bend_bose_excelgeom_fc();
 
 tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VERSION NOTES
 % NOTE!!!! 9/27/19 THIS CODE SHOULD NOT BE USED BY MEMBERS OF  BBML.
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
@@ -18,11 +19,7 @@ tic
 % the start point due to problems with rolling during testing. Instead, the
 % program will use this point, then perform a linear regression to take
 % this back to 0,0
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Written by Joey Wallace, July 2012 to work with test resources system.
-
+%
 % Edited by Max Hammond Sept. 2014 Changed the output from a csv 
 % file to an xls spreadsheet that included a title row. Code written by
 % Alycia Berman was added into the CTgeom section of the code to subtract
@@ -33,29 +30,30 @@ tic
 % using a moving average with a span of 10. Added a menu in case points
 % need to be reselected.
 
+% Written by Joey Wallace, July 2012 to work with test resources system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PROGRAM DESCRIPTION
 % This is a comprehensive program that reads in geometric and mechanical
 % information to calculate force/displacement and stress/strain from 
 % bending mechanical tests (3 OR 4 POINT).
 
 % This program reads raw mechanical data from the Bose system
 % from a a file named "specimen name.csv". It assumes that mechanical specimen
-% names are written as "ID#_RF" or "ID#_LF". For femora, the assumption is that
+% names are written as "ID#_RF", "ID#_LF", "ID#_RT, or "ID#_RF". For femora, the assumption is that
 % bending was about the ML axis with the anterior surface in tension. For
 % tibiae, the assumption is that bending was about the AP axis with the
 % medial surface in tension.
-%  
+
 % The program adjusts for system compliance and then uses beam bending
 % theory to convert force-displacement data to theoretical stress-strain
 % values.  Mechanical properties are calculated in both domains and output
-% to a file "specimen name_mechanics.csv".  It also outputs a figure
+% to a file "specimen name_date_mechanics.csv".  It also outputs a figure
 % showing the load-displacement and stress-strain curves with significant
 % points marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,6 +101,10 @@ if bone ~= 'F' && bone ~= 'T'
         error('Please F or T for bone as a string in the Testing Configuration')
 end
 
+if bone ~= 'T' && bendtype ~= '3'
+        error('Tibias are tested in 4 pt bending. Please change bendtype to '4'.')
+end
+
 %create a while loop to quickly run through multiple files without running
 %the program more than once
 zzz=1;
@@ -129,13 +131,7 @@ ID = specimen_name;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This is where we pull in data from the CT, the row for I and c are critical.
 
-%TESTING JW
 CT_Data_Row = find(CT_Data(:,1)==str2num(number));
-
-%I = CT_Data(CT_Data_Row,16);
-%c = CT_Data(CT_Data_Row,18)*1000;
-% I=0.130133924;
-% c=0.708719619*1000;
 
 if bone == 'F'
     I =   CT_Data(CT_Data_Row,16); %I_ml         
@@ -429,9 +425,9 @@ print ('-dpng', specimen_name)
 % representation of the f/d and stress/strain curves will appear.
 
 if bone == 'T'
-    headers = {'Specimen','I_ap (mm^4)','c_med (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ap (mm^4)','c_med (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 elseif bone == 'F'
-    headers = {'Specimen','I_ml (mm^4)','c_ant (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ml (mm^4)','c_ant (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 end
 
 resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
