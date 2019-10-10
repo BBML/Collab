@@ -46,7 +46,7 @@ tic
 % The program adjusts for system compliance and then uses beam bending
 % theory to convert force-displacement data to theoretical stress-strain
 % values.  Mechanical properties are calculated in both domains and output
-% to a file "specimen name_date_mechanics.csv".  It also outputs a figure
+% to a file "specimentype_date_mechanics.csv".  It also outputs a figure
 % showing the load-displacement and stress-strain curves with significant
 % points marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
