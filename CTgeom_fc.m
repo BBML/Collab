@@ -1,6 +1,7 @@
 function [ ]  = CTgeom_fc()
 %% Revision History
-% Edited Oct 3 2019 by Rachel Kohler to output c_ant (anterior extreme)
+% Edited Oct 3 2019 by Rachel Kohler to output c_ant (anterior extreme).
+% Further edits done Oct 10 2019 to clean up code (deleting unused code).
 
 % Edited May 2015 by Max Hammond to optimize code, record a diary,
 % calculate TMD, read BMD equations from multiple sub-folders, reduce Excel
@@ -74,6 +75,7 @@ folders = folders(arrayfun(@(x) x.isdir(1), folders) ~= 0);
 % Create a loop to count how many total samples there are in all sub
 % folders
 total_count = 0;
+
 for m=1:length(folders)
     sub_folder=[overall_folder '\' folders(m,1).name];
     subfolder_listing=dir(sub_folder);
@@ -90,7 +92,7 @@ res = input ('\n\n Voxel resolution in um: '); % input the isotropic voxel size 
 % warning for an odd angular resolution
 ang = input (' Angle step in degrees (factor of 360): ');
 while mod(360,ang)
-    fprintf(2,'\n Please enter a factor of 360 (e.g. 0.5). \n\n') %#ok<PRTCAL>
+    fprintf(2,'\n Please enter a factor of 360 (e.g. 0.5). Note: this is NOT the angular step size used in the uCT scan. \n\n')
     ang = input ('Angle step in degrees (factor of 360): ');
 end
 
@@ -98,7 +100,7 @@ end
 % of the specified range
 threshold = input(' Input threshold value (0-255): ');
 while threshold>255 || threshold<0
-    fprintf(2,'\n Please enter a threshold between 0 and 255. \n\n') %#ok<PRTCAL>
+    fprintf(2,'\n Please enter a threshold between 0 and 255. \n\n')
     threshold = input('Input threshold value (0-255): ');
 end
 
@@ -110,7 +112,7 @@ side = lower(side);
 side = side(1:1);
 side_log = ~strcmp(side,'l') + ~strcmp(side,'r');
 while side_log~=1
-    fprintf(2, ['\n You entered "' side '". \n\n']) %#ok<PRTCAL>
+    fprintf(2, ['\n You entered "' side '". \n\n'])
     side = input(' Enter "l" for a left limb and "r" for a right limb: ', 's');
     side = strrep(side,'"','');
     side = lower(side);
@@ -126,7 +128,7 @@ bone = lower(bone);
 bone = bone(1:1);
 bone_log = ~strcmp(bone,'f') + ~strcmp(bone,'t');
 while bone_log~=1
-    fprintf(2, ['\n You entered "' bone '". \n\n']) %#ok<PRTCAL>
+    fprintf(2, ['\n You entered "' bone '". \n\n']) 
     bone = input(' Enter "f" for a femur and "t" for a tibia: ', 's');
     bone = strrep(bone,'"','');
     bone = lower(bone);
@@ -148,7 +150,7 @@ for m=1:length(folders)
     % according to BMD = (AC - AC_min)/AC_range
     eq_n = input(' Enter the minimum attenuation coefficient (numerator): ');
     while eq_n>.11 || eq_n<0
-        fprintf(2,'\n Please enter a proper minimum attenuation coefficient (0-0.11). \n\n') %#ok<PRTCAL>
+        fprintf(2,'\n Please enter a proper minimum attenuation coefficient (0-0.11). \n\n')
         eq_n = input(' Enter the minimum attenuation coefficient (numerator): ');
     end
     
@@ -156,7 +158,7 @@ for m=1:length(folders)
     
     eq_d = input(' Enter the attenuation coefficient range (denominator): ');
     while eq_d>.11 || eq_d<0 || eq_d<eq_n
-        fprintf(2,'\n Please enter a proper attenuation coefficient range (0-0.11, > minimum). \n\n') %#ok<PRTCAL>
+        fprintf(2,'\n Please enter a proper attenuation coefficient range (0-0.11, > minimum). \n\n')
         eq_d = input(' Enter the attenuation coefficient range (denominator): ');
     end
     
@@ -217,16 +219,6 @@ try % use a try/catch block to run the code and save anything that has already r
             centroid_x = zeros(length(slices), 1);
             centroid_y = zeros(length(slices), 1);
             
-            %inner_fiber = prof_out_peri_cell = cell(length(folders), A);
-            %prof_out_endo_cell = cell(length(folders), A);
-            
-            
-            
-            
-            %mkdir([overall_folder '\MatlabOutput\' currentFolder '_MO']);
-            %outputpath=[overall_folder '\MatlabOutput\' currentFolder
-            %'_MO'];
-            
             % Create loop to calculate parameters for each slice
             for j=1:length(slices)
                 
@@ -234,11 +226,10 @@ try % use a try/catch block to run the code and save anything that has already r
                 section = imread(slices(j,1).name);
                 
                 % Read in each slice as a BW image and allow the variable
-                % to change size to accomadate different sized ROIs and/or
+                % to change size to accommodate different sized ROIs and/or
                 % different number of slices
-                %bw(:,:,j )= im2bw(section,threshold/255); %#ok<AGROW>
-                %slice = bw(:,:,j);
-                slice = im2bw(section,(threshold-1)/255); % use threshold-1 to take everything greater than or equal to the input threshold like CTAn
+  
+                slice = imbinarize(section,(threshold-1)/255); % use threshold-1 to take everything greater than or equal to the input threshold like CTAn
                 
                 % Remove all but the largest connected component (i.e.
                 % remove scales or fibula if applicable)
@@ -254,34 +245,10 @@ try % use a try/catch block to run the code and save anything that has already r
                 end
                 clear cc numPixels idx i
                 
-                
                 stats = regionprops(slice,section,'MeanIntensity','PixelValues');
                 tmd_gs(j,:) = [stats.MeanIntensity sum([stats.PixelValues]) length([stats.PixelValues])];
                 tmd_ac = tmd_gs(1).*ac_step;
                 tmd_HA = (tmd_ac - eq_num(m,1))/eq_denom(m,1);
-                
-                % Create a box around the bone.  The 4 comnponents of this
-                % are 1) the x coordinate of the UL corner 2) the y
-                % coordinate of the UL corner 3) the x width of the box and
-                % 4) the y width of the box
-                %bb = regionprops(slice,'BoundingBox'); bb =
-                %cat(1,bb.BoundingBox);
-                
-                % One problem is that the UL corner points in bb1 will
-                % actually be at the top left corner of the pixel they
-                % represent, so we need to add 0.5 to the first and second
-                % entries to move these points to the center of the pixel.
-                % Then, the widths will be 1 pixel long so we need to
-                % subtract 1 from entries 3 and 4.  This will now represent
-                % the first on and last on pixel in each direction
-                
-                %bb(1)=bb(1)+0.5; bb(2)=bb(2)+0.5; bb(3)=bb(3)-1;
-                %bb(4)=bb(4)-1;
-                
-                % Create a vector containing the coordinates of the corners
-                % of the bounding box, going from UL, UR, LR, LL
-                %xbb = [bb(1),bb(1)+bb(3),bb(1)+bb(3),bb(1)]; ybb =
-                %[bb(2),bb(2),bb(2)+bb(4),bb(2)+bb(4)];
                 
                 % Manually calculate the centroid from pixel locations:
                 [index_y,index_x] = find (slice == 1); % this finds the x and y locations of each "on" pixel
@@ -291,49 +258,7 @@ try % use a try/catch block to run the code and save anything that has already r
                 xbar = Qy/area; % xbar = integral of y_da/A
                 ybar = Qx/area; % ybar = integral of x_da/A
                 
-                % Manually calculate MOI from pixel locations.  We need
-                % integral of x squared dA.  since each x location is in
-                % index_x,and since the area of of each is one, we need
-                % x1x1 + x2x2, so multiply the vectors and then sum the
-                % entries in the resulting vector.
-                %Ix  = sum(index_y.^2);       % Ix  = integral(y^2*dA); with respect to y-axis
-                %Iy  = sum(index_x.^2);       % Iy  = integral(x^2*dA); with respect to x-axis
-                %Ixy = sum(index_x.*index_y);  % Ixy = integral(xy *dA); with respect to xy-axis
-                
-                %Ixc  = Ix  - area*ybar^2;      % Ixc  = Ix with respect to centroid; parallel axis theorema
-                %Iyc  = Iy  - area*xbar^2;      % Ixc  = Ix with respect to centroid; parallel axis theorema
-                %Ixyc = Ixy - area*xbar*ybar;     % Ixyc = Ixy with respect to centroid; parallel axis theorema
-                
                 % PLOT THE IMAGE WITH THE CENTROID MARKED
-                %subplot(2,2,1), imagesc(slice) %shows the image in blue vs red with axes labeled
-                %axis equal
-                %axis tight
-                %hold on
-                %plot(xbar, ybar, 'r+')
-                %xlabel('original x-positions in voxels')
-                %ylabel('original y-positions in voxels')
-                %title(['Original Voxel-Based BMP'])
-                
-                % Remove all but the largest hole (i.e. remove any pores
-                % but leave the medullary cavity
-                filled = imfill(slice, 'holes'); % fill all the holes in the image
-                holes = filled & ~slice; % create an image only containg holes
-                cavity = holes;
-                cc=bwconncomp(cavity); % find the connected holes
-                numPixels = cellfun(@numel,cc.PixelIdxList); % find the number of pixels in each hole
-                [~,idx] = max(numPixels); % find the hole containing the most number of pixels
-                for i=1:length(cc.PixelIdxList) % remove all other components
-                    if i==idx
-                        % do nothing
-                    else
-                        cavity(cc.PixelIdxList{i})=0;
-                    end
-                end
-                clear cc numPixels idx i
-                pores = holes & ~cavity;
-                slice = slice | pores;
-                clear filled holes cavity pores
-                
                 % Start getting line profiles at various degrees:
                 inner_fiber = zeros(1, A); % creats a zero vector for the endocortical radii
                 outer_fiber = zeros(1, A); % creates a zero vector for the periosteal radii
@@ -439,11 +364,7 @@ try % use a try/catch block to run the code and save anything that has already r
                 % Setup angles for polar plot
                 angle_deg = 45:ang:405;
                 angle_rad = angle_deg.*pi./180; %convert to radians
-                %subplot(2,2,2) polar(360,75); %set  the axes for the polar
-                %plot hold on polar(angle_rad,inner_fiber);
-                %polar(angle_rad,outer_fiber); title(['Polar Plot of
-                %Original Voxel-Based BMP'])
-                
+
                 % Convert the geometric data from angle and radius to x and
                 % y coordinates
                 outer_fiber_x = outer_fiber.*cos(angle_rad);
@@ -481,10 +402,6 @@ try % use a try/catch block to run the code and save anything that has already r
                 inner_fiber_y = inner_fiber_y+y_data_min;
                 x_perimeter = [outer_fiber_x inner_fiber_x];
                 y_perimeter = [outer_fiber_y inner_fiber_y];
-                %subplot(2,2,3) plot(x_perimeter,y_perimeter) hold on axis
-                %equal axis tight plot(x_data_min,y_data_min,'g*')
-                %xlabel('x-position in voxels') ylabel('y-position in
-                %voxels') title(['Calculated Perimeter Points'])
                 
                 % USE THESE OUTPUTS PRIOR TO INCORPORATING POLYGEOM TO GET
                 % SOME OF THE GEOMETRIC PROPERTIES OF INTEREST
@@ -496,11 +413,6 @@ try % use a try/catch block to run the code and save anything that has already r
                 inner_fiber_y = inner_fiber_y*res;
                 x_perimeter = x_perimeter*res;
                 y_perimeter = y_perimeter*res;
-                
-                %subplot(2,2,4) plot(x_perimeter,y_perimeter) hold on axis
-                %equal axis tight xlabel('x-position in um')
-                %ylabel('y-position in um') title(['Calculated Perimeter
-                %Points'])
                 
                 subplot(1,2,2)
                 plot(x_perimeter,y_perimeter)
@@ -533,14 +445,14 @@ try % use a try/catch block to run the code and save anything that has already r
                 y = outer_fiber_y;
                 
                 % Check if inputs are same size
-                if ~isequal( size(x), size(y) ),
+                if ~isequal( size(x), size(y) )
                     error( 'X and Y must be the same size');
                 end
                 
                 % Number of vertices
-                [ x, ns ] = shiftdim( x ); %#ok<NASGU>
-                [ y, ns ] = shiftdim( y ); %#ok<NASGU>
-                [ n, c ] = size( x ); %#ok<NASGU>
+                [ x, ~ ] = shiftdim( x ); 
+                [ y, ~ ] = shiftdim( y ); 
+                [ n, ~ ] = size( x ); 
                 
                 % Temporarily shift data to mean of vertices for improved
                 % accuracy
@@ -565,14 +477,14 @@ try % use a try/catch block to run the code and save anything that has already r
                 y = fliplr(inner_fiber_y);
                 
                 % check if inputs are same size
-                if ~isequal( size(x), size(y) ),
+                if ~isequal( size(x), size(y) )
                     error( 'X and Y must be the same size');
                 end
                 
                 % Number of vertices
-                [ x, ns ] = shiftdim( x ); %#ok<NASGU>
-                [ y, ns ] = shiftdim( y ); %#ok<NASGU>
-                [ n, c ] = size( x ); %#ok<NASGU>
+                [ x, ~ ] = shiftdim( x ); 
+                [ y, ~ ] = shiftdim( y ); 
+                [ n, ~ ] = size( x ); 
                 
                 % Temporarily shift data to mean of vertices for improved
                 % accuracy
@@ -596,14 +508,14 @@ try % use a try/catch block to run the code and save anything that has already r
                 y = y_perimeter;
                 
                 % Check if inputs are same size
-                if ~isequal( size(x), size(y) ),
+                if ~isequal( size(x), size(y) )
                     error( 'X and Y must be the same size');
                 end
                 
                 % Number of vertices
-                [ x, ns ] = shiftdim( x ); %#ok<NASGU>
-                [ y, ns ] = shiftdim( y ); %#ok<NASGU>
-                [ n, c ] = size( x ); %#ok<NASGU>
+                [ x, ~ ] = shiftdim( x ); 
+                [ y, ~ ] = shiftdim( y ); 
+                [ n, ~ ] = size( x ); 
                 
                 % Temporarily shift data to mean of vertices for improved
                 % accuracy
@@ -629,7 +541,7 @@ try % use a try/catch block to run the code and save anything that has already r
                 %P = sum( sqrt( dx.*dx +dy.*dy ) ); % perimeter?
                 
                 % Check for CCW versus CW boundary
-                if cA < 0,
+                if cA < 0
                     cA = -cA;
                     Axc = -Axc;
                     Ayc = -Ayc;
@@ -644,14 +556,11 @@ try % use a try/catch block to run the code and save anything that has already r
                 Iuu = Ixx - cA*yc*yc; % centroidal MOI about x axis
                 Ivv = Iyy - cA*xc*xc; % centroidal MOI anout y axis
                 Iuv = Ixy - cA*xc*yc; % product of inertia
-                %J = Iuu + Ivv; % polar MOI
-                
+
                 % Replace mean of vertices
                 x_cen = xc + xm;
                 y_cen = yc + ym;
-                %Ixx = Iuu + cA*y_cen*y_cen; Iyy = Ivv + cA*x_cen*x_cen;
-                %Ixy = Iuv + cA*x_cen*y_cen;
-                
+
                 % Principal moments and orientation
                 I = [ Iuu  -Iuv ;
                     -Iuv   Ivv ];
@@ -670,18 +579,13 @@ try % use a try/catch block to run the code and save anything that has already r
                 centroid_x (j,:) = x_cen;
                 centroid_y (j,:) = y_cen;
                 
-                % Converts the centroid back to pixels and overlays on 3rd
-                % plot to show difference from this measure and original
-                % measure
-                %cen_x_pix = x_cen/res; cen_y_pix = y_cen/res;
-                %subplot(2,2,3) plot(cen_x_pix,cen_y_pix,'b+')
-                
                 % Section modulus is resistance to bending.  Here it is
                 % Z=I/c where I is the centroidal MOI aboout the axis of
                 % bending (the x axis) divided by the extreme fiber on the
                 % failure surface (the medial surface is in tension) for a
                 % tibia. A femur is tested about the mediolateral axis with
                 % the anterior surface in tension
+                
                 if bone == 't'
                     section_mod = Iuu/medial_extreme;
                 else
@@ -797,18 +701,18 @@ try % use a try/catch block to run the code and save anything that has already r
             % Create a polar plot of the profile with the Imax and Imin
             % axes
             subplot(1, 2, 1)
-            polar(360,1000); % set  the axes for the polar plot
+            polarplot(360,1000); % set  the axes for the polar plot
             hold on
-            polar(angle_rad,avg_endo, '-b');
-            polar(angle_rad,avg_peri, '-b');
+            polarplot(angle_rad,avg_endo, '-b');
+            polarplot(angle_rad,avg_peri, '-b');
             title('Polar Plot of Avg Profile')
             line_r = -max(avg_peri)+50:max(avg_peri)+50;
             ang_max_rad = mean(geom_out(1:length(slices),8)).*pi./180;
             ang_min_rad = mean(geom_out(1:length(slices),10)).*pi./180;
             ang_max_rad = ones(1,length(line_r)).*ang_max_rad;
             ang_min_rad = ones(1,length(line_r)).*ang_min_rad;
-            pol_max = polar(ang_max_rad, line_r, '-r');
-            pol_min = polar(ang_min_rad, line_r, '--r');
+            pol_max = polarplot(ang_max_rad, line_r, '-r');
+            pol_min = polarplot(ang_min_rad, line_r, '--r');
             legend([pol_max,pol_min],'\theta max','\theta min','Location','southoutside','Orientation','horizontal')
             hold off
             
@@ -823,19 +727,7 @@ try % use a try/catch block to run the code and save anything that has already r
             prof_shift = horzcat(prof_shift1, prof_shift2);
             prof_shift(1, :) = ang_shift;
             prof_cell=num2cell(prof_shift);
-            
-            % Create cell array to write to Excel for prof_slices
-            %colhead = (1:length(slices))'; prof_s_col = vertcat(colhead,colhead); 
-            %prof_s_col_cell = num2cell(prof_s_col);
-            %prof_s_col_cell = [' '; prof_s_col_cell; 'P Avg'; 'E Avg']; %#ok<AGROW> 
-            %prof_slice_cell = horzcat(prof_s_col_cell, prof_cell);           
-            
-            % Output profiles of all slices as xlsx file with each bone as
-            % a separate sheet
-            %xlswrite([overall_folder '\CTprof_slices.xlsx'],
-            %prof_slice_cell, folder, 'A1')
-            
-            
+ 
             % Create a cell array for prof_avg
             prof_mean_peri = prof_shift(2*length(slices)+2,:);
             prof_cell_peri = num2cell(prof_mean_peri);
@@ -843,21 +735,6 @@ try % use a try/catch block to run the code and save anything that has already r
             prof_mean_endo = prof_shift(2*length(slices)+3,:);
             prof_cell_endo = num2cell(prof_mean_endo);
             prof_out_endo_cell(offset+k, :) = prof_cell_endo;
-            
-            
-            % Create cell array to write to Excel for geom_slices
-            %geom_s_col_cell = num2cell(colhead); geom_slices_col_cell = [''; geom_s_col_cell; 'Avg'; 'SD ']; 
-            %headers = {'Total CSA (mm^2)', 'Marrow Area (mm^2)', 'Cortical Area(mm^2)','Cortical Thickness (mm)', 'Periosteal BS (mm)', 'Endocortical BS (mm)',  'Imax (mm^4)', 'Theta max (deg)', 'Imin (mm^4)','Theta min (deg)', 'AP Width (mm)', 'ML Width (mm)','AP/ML',  'Iap (mm^4)', 'Iml (mm^4)',   'Section Modulus (mm^3)', 'Medial Extreme (mm)', 'TMD (g/cm^3 HA)'};
-            %geom_out(length(slices)+1,:) = mean(geom_out(1:length(slices),:));
-            %geom_out(length(slices)+2,:) = std(geom_out(1:length(slices),:)); 
-            %geom_s = num2cell(geom_out); geom_s_cell = [headers; geom_s];
-            %geom_slices_cell = horzcat(geom_slices_col_cell, geom_s_cell);
-            
-            % Output the geometry from all the slices with the mean and
-            % stdev as the final 2 rows in an xlsx file with a new sheet
-            % for every sample
-            %xlswrite([overall_folder '\CTgeom_slices.xlsx'],
-            %geom_slices_cell, folder, 'A1')
             
             % Calculate average TMD using total counts from each slice
             % instead of a simple average as before because the pixel count
@@ -925,12 +802,12 @@ catch ME
             diary on
             % Display the folder name where the error occured
             msg = ['\n Error occured at the beginning of loop ' num2str(k) '. No data could be read from folder ' num2str(folder) '.\n\n'];
-            fprintf(2,msg) %#ok<PRTCAL>
+            fprintf(2,msg) 
             
         else
             % Display the folder name where the error occured
             msg = ['\n Error occured during loop ' num2str(k) ' at folder ' num2str(folder) '  in slice ' num2str(j) '. \n\n'];
-            fprintf(2,msg) %#ok<PRTCAL>
+            fprintf(2,msg)
             
         end
         
