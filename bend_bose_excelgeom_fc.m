@@ -106,7 +106,7 @@ end
 %create a while loop to quickly run through multiple files without running
 %the program more than once
 zzz=1;
-ppp=1;
+ppp=2;
 
 % Get CT Data
 [CT_filename, CT_pathname] = uigetfile({'*.xls;*.xlsx;*.csv','Excel Files (*.xls,*.xlsx,*.csv)'; '*.*',  'All Files (*.*)'},'Pick the file with CT info');
@@ -429,9 +429,9 @@ print ('-dpng', specimen_name)
 % representation of the f/d and stress/strain curves will appear.
 
 if bone == 'T'
-    headers = {'Specimen','I_ap (mm^4)','c_med (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ap (mm^4)','c_med (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 elseif bone == 'F'
-    headers = {'Specimen','I_ml (mm^4)','c_ant (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ml (mm^4)','c_ant (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 end
 
 resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
@@ -445,14 +445,32 @@ resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
         num2str(yield_stress), num2str(ultimate_stress), num2str(fail_stress), ...
         num2str(strain_to_yield), num2str(strain_to_ult), num2str(strain_to_fail)}]; 
 
-row=num2str(ppp+1);
-rowcount=['A' row];
 d=datestr(date,'_mm_dd_yy');
 xls=[bonetype d '_mechanics.xls'];
 
-xlswrite(xls, resultsxls, 'Data', rowcount)
-xlswrite(xls, headers, 'Data', 'A1')
-warning off MATLAB:xlswrite:AddSheet 
+% RKK added loop to avoid writing over pre-existing file. This way, if 
+% an error happens during a run, the program can be restarted without 
+% losing data.
+
+if isfile(xls)
+    row=num2str(ppp);
+    cell=['B' row];
+    while xlsread(xls,'Data',cell) ~=0
+        ppp=ppp+1;
+        row=num2str(ppp);
+        cell=['B' row];
+    end
+    row=num2str(ppp);
+    rowcount=['A' row];
+    xlswrite(xls, resultsxls, 'Data', rowcount)
+    warning off MATLAB:xlswrite:AddSheet
+else
+    row=num2str(ppp);
+    rowcount=['A' row];
+    xlswrite(xls, resultsxls, 'Data', rowcount)
+    xlswrite(xls, headers, 'Data', 'A1')
+    warning off MATLAB:xlswrite:AddSheet 
+end
 
 ppp=ppp+1;
 zzz=menu('Do you have more data to analyze?','Yes','No');
