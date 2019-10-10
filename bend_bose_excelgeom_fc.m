@@ -2,7 +2,6 @@ function [ ]  = bend_bose_excelgeom_fc();
 
 tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% VERSION NOTES
 % NOTE!!!! 9/27/19 THIS CODE SHOULD NOT BE USED BY MEMBERS OF  BBML.
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
@@ -19,6 +18,10 @@ tic
 % the start point due to problems with rolling during testing. Instead, the
 % program will use this point, then perform a linear regression to take
 % this back to 0,0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Written by Joey Wallace, July 2012 to work with test resources system.
 
 % Edited by Max Hammond Sept. 2014 Changed the output from a csv 
 % file to an xls spreadsheet that included a title row. Code written by
@@ -30,30 +33,29 @@ tic
 % using a moving average with a span of 10. Added a menu in case points
 % need to be reselected.
 
-% Written by Joey Wallace, July 2012 to work with test resources system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PROGRAM DESCRIPTION
 % This is a comprehensive program that reads in geometric and mechanical
 % information to calculate force/displacement and stress/strain from 
 % bending mechanical tests (3 OR 4 POINT).
 
 % This program reads raw mechanical data from the Bose system
 % from a a file named "specimen name.csv". It assumes that mechanical specimen
-% names are written as "ID#_RF", "ID#_LF", "ID#_RT, or "ID#_RF". For femora, the assumption is that
+% names are written as "ID#_RF" or "ID#_LF". For femora, the assumption is that
 % bending was about the ML axis with the anterior surface in tension. For
 % tibiae, the assumption is that bending was about the AP axis with the
 % medial surface in tension.
-
+%  
 % The program adjusts for system compliance and then uses beam bending
 % theory to convert force-displacement data to theoretical stress-strain
 % values.  Mechanical properties are calculated in both domains and output
-% to a file "specimen name_date_mechanics.csv".  It also outputs a figure
+% to a file "specimen name_mechanics.csv".  It also outputs a figure
 % showing the load-displacement and stress-strain curves with significant
 % points marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,14 +103,10 @@ if bone ~= 'F' && bone ~= 'T'
         error('Please F or T for bone as a string in the Testing Configuration')
 end
 
-if bone == 'T' && bendtype == '3'
-        error('Tibias are tested in 4 pt bending. Please change bendtype to '4'.')
-end
-
 %create a while loop to quickly run through multiple files without running
 %the program more than once
 zzz=1;
-ppp=1;
+ppp=2;
 
 % Get CT Data
 [CT_filename, CT_pathname] = uigetfile({'*.xls;*.xlsx;*.csv','Excel Files (*.xls,*.xlsx,*.csv)'; '*.*',  'All Files (*.*)'},'Pick the file with CT info');
@@ -131,7 +129,13 @@ ID = specimen_name;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This is where we pull in data from the CT, the row for I and c are critical.
 
+%TESTING JW
 CT_Data_Row = find(CT_Data(:,1)==str2num(number));
+
+%I = CT_Data(CT_Data_Row,16);
+%c = CT_Data(CT_Data_Row,18)*1000;
+% I=0.130133924;
+% c=0.708719619*1000;
 
 if bone == 'F'
     I =   CT_Data(CT_Data_Row,16); %I_ml         
@@ -441,14 +445,32 @@ resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
         num2str(yield_stress), num2str(ultimate_stress), num2str(fail_stress), ...
         num2str(strain_to_yield), num2str(strain_to_ult), num2str(strain_to_fail)}]; 
 
-row=num2str(ppp+1);
-rowcount=['A' row];
 d=datestr(date,'_mm_dd_yy');
 xls=[bonetype d '_mechanics.xls'];
 
-xlswrite(xls, resultsxls, 'Data', rowcount)
-xlswrite(xls, headers, 'Data', 'A1')
-warning off MATLAB:xlswrite:AddSheet 
+% RKK added loop to avoid writing over pre-existing file. This way, if 
+% an error happens during a run, the program can be restarted without 
+% losing data.
+
+if isfile(xls)
+    row=num2str(ppp);
+    cell=['B' row];
+    while xlsread(xls,'Data',cell) ~=0
+        ppp=ppp+1;
+        row=num2str(ppp);
+        cell=['B' row];
+    end
+    row=num2str(ppp);
+    rowcount=['A' row];
+    xlswrite(xls, resultsxls, 'Data', rowcount)
+    warning off MATLAB:xlswrite:AddSheet
+else
+    row=num2str(ppp);
+    rowcount=['A' row];
+    xlswrite(xls, resultsxls, 'Data', rowcount)
+    xlswrite(xls, headers, 'Data', 'A1')
+    warning off MATLAB:xlswrite:AddSheet 
+end
 
 ppp=ppp+1;
 zzz=menu('Do you have more data to analyze?','Yes','No');
