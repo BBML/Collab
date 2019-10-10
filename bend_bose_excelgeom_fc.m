@@ -2,27 +2,21 @@ function [ ]  = bend_bose_excelgeom_fc();
 
 tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VERSION NOTES
 % NOTE!!!! 9/27/19 THIS CODE SHOULD NOT BE USED BY MEMBERS OF  BBML.
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
 % If something other than CTGeom was used, parts of the code need to be 
 % modified. See note below.
 
-% Code is for both femur and tibia, in 3 or 4 point bending 
-% which is hard coded.
-
 % RKK adapted on 10/4/2019 to fix geometry inputs and allow for both femur 
-% and tibia testing.
+% and tibia testing. Logic to avoid overwriting files added 10/10/2019.
 
 % AGB adapted on 7/24/15 to not zero the load and displacement when you choose
 % the start point due to problems with rolling during testing. Instead, the
 % program will use this point, then perform a linear regression to take
 % this back to 0,0
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Written by Joey Wallace, July 2012 to work with test resources system.
-
+%
 % Edited by Max Hammond Sept. 2014 Changed the output from a csv 
 % file to an xls spreadsheet that included a title row. Code written by
 % Alycia Berman was added into the CTgeom section of the code to subtract
@@ -33,29 +27,30 @@ tic
 % using a moving average with a span of 10. Added a menu in case points
 % need to be reselected.
 
+% Written by Joey Wallace, July 2012 to work with test resources system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PROGRAM DESCRIPTION
 % This is a comprehensive program that reads in geometric and mechanical
 % information to calculate force/displacement and stress/strain from 
 % bending mechanical tests (3 OR 4 POINT).
 
 % This program reads raw mechanical data from the Bose system
 % from a a file named "specimen name.csv". It assumes that mechanical specimen
-% names are written as "ID#_RF" or "ID#_LF". For femora, the assumption is that
-% bending was about the ML axis with the anterior surface in tension. For
-% tibiae, the assumption is that bending was about the AP axis with the
-% medial surface in tension.
-%  
+% names are written as "ID#_RF", "ID#_LF", "ID#_RT, or "ID#_RF". For femora, 
+% the assumption is thatbending was about the ML axis with the anterior 
+% surface in tension. For tibiae, the assumption is that bending was about 
+% the AP axis with the medial surface in tension.
+
 % The program adjusts for system compliance and then uses beam bending
 % theory to convert force-displacement data to theoretical stress-strain
 % values.  Mechanical properties are calculated in both domains and output
-% to a file "specimen name_mechanics.csv".  It also outputs a figure
+% to a file "specimen name_date_mechanics.csv".  It also outputs a figure
 % showing the load-displacement and stress-strain curves with significant
 % points marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,6 +98,10 @@ if bone ~= 'F' && bone ~= 'T'
         error('Please F or T for bone as a string in the Testing Configuration')
 end
 
+if bone == 'T' && bendtype == '3'
+        error('Tibias are tested in 4 pt bending. Please change bendtype to '4'.')
+end
+
 %create a while loop to quickly run through multiple files without running
 %the program more than once
 zzz=1;
@@ -111,7 +110,6 @@ ppp=2;
 % Get CT Data
 [CT_filename, CT_pathname] = uigetfile({'*.xls;*.xlsx;*.csv','Excel Files (*.xls,*.xlsx,*.csv)'; '*.*',  'All Files (*.*)'},'Pick the file with CT info');
 CT_Data = xlsread([CT_pathname CT_filename],'Raw Data');
-
 
 while zzz==1
     
@@ -132,14 +130,10 @@ ID = specimen_name;
 %TESTING JW
 CT_Data_Row = find(CT_Data(:,1)==str2num(number));
 
-%I = CT_Data(CT_Data_Row,16);
-%c = CT_Data(CT_Data_Row,18)*1000;
-% I=0.130133924;
-% c=0.708719619*1000;
-
 if bone == 'F'
     I =   CT_Data(CT_Data_Row,16); %I_ml         
     c =   CT_Data(CT_Data_Row,19)*1000; %c_ant
+    
 elseif bone == 'T'
     I =   CT_Data(CT_Data_Row,15); %I_ap          
     c =   CT_Data(CT_Data_Row,18)*1000; %c_med
@@ -147,7 +141,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 %Set up loop to redo point selection if desired
 yyy = 1;
@@ -315,7 +308,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %Plot linear regression on top of selected region
 hold on
 linear_stress = slope*linear_strain;
@@ -452,10 +444,10 @@ xls=[bonetype d '_mechanics.xls'];
 % an error happens during a run, the program can be restarted without 
 % losing data.
 
-if isfile(xls)
+if isfile(xls) % Check if file already exists
     row=num2str(ppp);
     cell=['B' row];
-    while xlsread(xls,'Data',cell) ~=0
+    while xlsread(xls,'Data',cell) ~=0 % Find first empty row
         ppp=ppp+1;
         row=num2str(ppp);
         cell=['B' row];
@@ -464,7 +456,7 @@ if isfile(xls)
     rowcount=['A' row];
     xlswrite(xls, resultsxls, 'Data', rowcount)
     warning off MATLAB:xlswrite:AddSheet
-else
+else % If it doesn't exist, create new file
     row=num2str(ppp);
     rowcount=['A' row];
     xlswrite(xls, resultsxls, 'Data', rowcount)
