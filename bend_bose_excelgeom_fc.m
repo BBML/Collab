@@ -73,15 +73,13 @@ dbstop if error
 %*****************\TESTING CONFIGURATION/**********************************
 %                                                                         *
 %   Adjust these values to match the system setup.                        *
-%   The master version of this code has values set to 0 to ensure that    *
-%   the user adjusts values appropriately.                                *
 %                                                                         *
-L = 0.00;           %span between bottom load points (mm)                 *
-a = 0.00;           %distance between outer and inner points (if 4pt; mm) *
-bendtype = '0';     %enter '4' for 4pt and '3' for 3pt bending            *
+L = 9.00;           %span between bottom load points (mm)                 *
+a = 4.00;           %distance between outer and inner points (if 4pt; mm) *
+bendtype = '4';     %enter '4' for 4pt and '3' for 3pt bending            *
 compliance = 0;     %system compliance (microns/N)                        *
-side = '0';         %input 'R' for right and 'L' for left                 *
-bone = '0';         %enter 'F' for femur and 'T' for tibia                *
+side = 'R';         %input 'R' for right and 'L' for left                 *
+bone = 'T';         %enter 'F' for femur and 'T' for tibia                *
 smoothing = 1;      %enter 1 to smooth using moving average (span=10)     *
 %**************************************************************************
 
@@ -106,7 +104,7 @@ if bone == 'T' && bendtype == '3'
         error('Tibias are tested in 4 pt bending. Please change bendtype to 4.')
 end
 
-% Added final check to ensure that user edits testing configuration values
+% Final check to ensure that user edits testing configuration values
 answer = questdlg('Have you modified the testing configuration values?', ...
 	'Sanity Check', ...
 	'Yes','No','Huh?','Huh?');
@@ -117,7 +115,7 @@ switch answer
         disp([answer '. Please edit testing configuration values.'])
         return
     case 'Huh?'
-        disp([answer ' See line 76 in the code. Please edit testing configuration values.'])
+        disp([answer ' See line 73 in the code. Please edit testing configuration values.'])
         return
 end
 
