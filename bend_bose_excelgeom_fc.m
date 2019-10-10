@@ -19,7 +19,7 @@ tic
 % the start point due to problems with rolling during testing. Instead, the
 % program will use this point, then perform a linear regression to take
 % this back to 0,0
-%
+
 % Edited by Max Hammond Sept. 2014 Changed the output from a csv 
 % file to an xls spreadsheet that included a title row. Code written by
 % Alycia Berman was added into the CTgeom section of the code to subtract
@@ -101,7 +101,7 @@ if bone ~= 'F' && bone ~= 'T'
         error('Please F or T for bone as a string in the Testing Configuration')
 end
 
-if bone ~= 'T' && bendtype ~= '3'
+if bone == 'T' && bendtype == '3'
         error('Tibias are tested in 4 pt bending. Please change bendtype to '4'.')
 end
 
