@@ -106,6 +106,21 @@ if bone == 'T' && bendtype == '3'
         error('Tibias are tested in 4 pt bending. Please change bendtype to 4.')
 end
 
+% Added final check to ensure that user edits testing configuration values
+answer = questdlg('Have you modified the testing configuration values?', ...
+	'Sanity Check', ...
+	'Yes','No','Huh?','Huh?');
+% Handle response
+switch answer
+    case 'Yes'
+    case 'No'
+        disp([answer '. Please edit testing configuration values.'])
+        return
+    case 'Huh?'
+        disp([answer ' See line 76 in the code. Please edit testing configuration values.'])
+        return
+end
+
 %create a while loop to quickly run through multiple files without running
 %the program more than once
 zzz=1;
