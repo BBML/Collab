@@ -8,7 +8,7 @@ tic
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
 % If something other than CTGeom was used, parts of the code need to be 
-% modified. See note below.
+% modified. See note at line __ below.
 % !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % RKK adapted on 10/4/2019 to fix geometry inputs and allow for both femur 
@@ -104,7 +104,7 @@ if bone == 'T' && bendtype == '3'
         error('Tibias are tested in 4 pt bending. Please change bendtype to 4.')
 end
 
-% Final check to ensure that user edits testing configuration values
+% RKK added final check to ensure that user edits testing configuration values
 answer = questdlg('Have you modified the testing configuration values?', ...
 	'Sanity Check', ...
 	'Yes','No','Huh?','Huh?');
