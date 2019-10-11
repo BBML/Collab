@@ -8,7 +8,7 @@ tic
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
 % If something other than CTGeom was used, parts of the code need to be 
-% modified. See note at line __ below.
+% modified. See note at line 61 below.
 % !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % RKK adapted on 10/4/2019 to fix geometry inputs and allow for both femur 
@@ -58,9 +58,11 @@ tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*
 % Geometry used here is from a CSV output from the CTgeom_fc code.
-% NOTE: it is very important to make sure that CTGeom is giving the correct
-% geomtric properties for a femur (I_ML and c_ant) or a tibia (I_AP and
-% c_med)
+% NOTE: it is very important to make sure that the code is calling the correct
+% geometric properties for a femur (I_ML and c_ant) or a tibia (I_AP and
+% c_med). If a different method is used to calculate I and c, this code can
+% be used IF those values are organized in a spreadsheet AND the appropriate
+% columns are called in the code. (Edit lines 153, 154, 157, 158.)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -115,7 +117,7 @@ switch answer
         disp([answer '. Please edit testing configuration values.'])
         return
     case 'Huh?'
-        disp([answer ' See line 73 in the code. Please edit testing configuration values.'])
+        disp([answer ' See line 75 in the code. Please edit testing configuration values.'])
         return
 end
 
@@ -464,11 +466,13 @@ xls=[bonetype d '_mechanics.xls'];
 if isfile(xls) % Check if file already exists
     row=num2str(ppp);
     cell=['B' row];
-    while xlsread(xls,'Data',cell) ~=0 % Find first empty row
+    % Find first empty row in existing file
+    while xlsread(xls,'Data',cell) ~=0 
         ppp=ppp+1;
         row=num2str(ppp);
         cell=['B' row];
     end
+    % Write data
     row=num2str(ppp);
     rowcount=['A' row];
     xlswrite(xls, resultsxls, 'Data', rowcount)
