@@ -8,7 +8,9 @@ tic
 % It is intended for collaborators who do not have CT slices from CTan and
 % have instead used CTGeom or potentially some other method to find I and c.
 % If something other than CTGeom was used, parts of the code need to be 
-% modified. See note at line 61 below.
+% modified. See note at line 63 below.
+
+% ALSO this code requires MATLAB R2017b or later to work properly.
 % !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % RKK adapted on 10/4/2019 to fix geometry inputs and allow for both femur 
@@ -48,7 +50,7 @@ tic
 % The program adjusts for system compliance and then uses beam bending
 % theory to convert force-displacement data to theoretical stress-strain
 % values.  Mechanical properties are calculated in both domains and output
-% to a file "specimentype_date_mechanics.csv".  It also outputs a figure
+% to a file "studyname_specimentype_mechanics.csv".  It also outputs a figure
 % showing the load-displacement and stress-strain curves with significant
 % points marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,6 +85,7 @@ compliance = 0;     %system compliance (microns/N)                        *
 side = 'R';         %input 'R' for right and 'L' for left                 *
 bone = 'T';         %enter 'F' for femur and 'T' for tibia                *
 smoothing = 1;      %enter 1 to smooth using moving average (span=10)     *
+study = 'test_';    %enter study label for output excel sheet (eg 'STZ_') *
 %**************************************************************************
 
 %Check common errors in testing configuration
@@ -117,7 +120,7 @@ switch answer
         disp([answer '. Please edit testing configuration values.'])
         return
     case 'Huh?'
-        disp([answer ' See line 75 in the code. Please edit testing configuration values.'])
+        disp([answer ' See line 77 in the code. Please edit testing configuration values.'])
         return
 end
 
@@ -456,8 +459,7 @@ resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
         num2str(yield_stress), num2str(ultimate_stress), num2str(fail_stress), ...
         num2str(strain_to_yield), num2str(strain_to_ult), num2str(strain_to_fail)}]; 
 
-d=datestr(date,'_mm_dd_yy');
-xls=[bonetype d '_mechanics.xls'];
+xls=[study bonetype '_mechanics.xls'];
 
 % RKK added loop to avoid writing over pre-existing file. This way, if 
 % an error happens during a run, the program can be restarted without 
