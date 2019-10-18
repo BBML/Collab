@@ -64,7 +64,7 @@ tic
 % geometric properties for a femur (I_ML and c_ant) or a tibia (I_AP and
 % c_med). If a different method is used to calculate I and c, this code can
 % be used IF those values are organized in a spreadsheet AND the appropriate
-% columns are called in the code. (Edit lines 153, 154, 157, 158.)
+% columns are called in the code. (Edit lines 156, 157, 160, 161.)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -443,9 +443,9 @@ print ('-dpng', specimen_name)
 % representation of the f/d and stress/strain curves will appear.
 
 if bone == 'T'
-    headers = {'Specimen','I_ap (mm^4)','c_med (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ap (mm^4)','c_med (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 elseif bone == 'F'
-    headers = {'Specimen','I_ml (mm^4)','c_ant (µm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (µm)','Postyield Displacement (µm)','Total Displacment (µm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (µ?)','Total Strain (µ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (µm)','Ultimate Displacement (µm)','Total Displacment (µm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (µ?)','Ultimate Strain (µ?)','Total Strain (µ?)'};
+    headers = {'Specimen','I_ml (mm^4)','c_ant (Âµm)','Yield Force (N)','Ultimate Force (N)','Displacement to Yield (Âµm)','Postyield Displacement (Âµm)','Total Displacment (Âµm)','Stiffness (N/mm)','Work to Yield (mJ)','Postyield Work (mJ)','Total Work (mJ)','Yield Stress (MPa)','Ultimate Stress (MPa)','Strain to Yield (Âµ?)','Total Strain (Âµ?)','Modulus (GPa)','Resilience (MPa)','Toughness (MPa)',' ','Specimen','Yield Force (N)','Ultimate Force (N)','Failure Force (N)','Displacement to Yield (Âµm)','Ultimate Displacement (Âµm)','Total Displacment (Âµm)','Yield Stress (MPa)','Ultimate Stress (MPa)','Failure Stress (MPa)','Strain to Yield (Âµ?)','Ultimate Strain (Âµ?)','Total Strain (Âµ?)'};
 end
 
 resultsxls = [{specimen_name, num2str(I), num2str(c), num2str(yield_load), ...
