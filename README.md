@@ -18,8 +18,6 @@ Geometry + mechanical code for collaborator use ONLY.
   organized, run this code to get geometry and TMD values. Geometry outputs are
   needed to run bend_bose_excelgeom_fc.
   
-  EDIT NOTES: _double-check that polarplots are referrencing correct values!!!!!
-  
 # 2. bend_bose_excelgeom_fc
 - bend (for processing 3/4 pt bending test outputs)
 - bose (from tests performed on the BOSE system)
@@ -39,8 +37,4 @@ Geometry + mechanical code for collaborator use ONLY.
   
   Use: After mechanical tests have been performed and CT_geom_fc has been run to
   calculate geometric properties, use this code to calculate mechanical properties.
-  
-  EDIT NOTES: need to double-check final version of code (eg 3 pt T error)
-  
-  DOUBLE EDIT: Need to create a trouble-shoot file for both codes.
 
