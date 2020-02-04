@@ -1,5 +1,9 @@
 function [ ]  = CTgeom_fc()
 %% Revision History
+
+% Edited Feb 4 2020 by Rachel Kohler to add error explanation if folders
+% are setup wrong.
+
 % Edited Oct 3 2019 by Rachel Kohler to output c_ant (anterior extreme).
 % Further edits done Oct 10 2019 to clean up code (deleting unused code).
 
@@ -136,6 +140,12 @@ while bone_log~=1
     bone_log = ~strcmp(bone,'f') + ~strcmp(bone,'t');
 end
 
+if length(folders)==0
+    fprintf(2,'\n----------------------ERROR-----------------------\n');
+    fprintf(2,'Your files are not properly organized.\nSee line 43 in the code and set up your folders according to the prescribed hierarchy.\n');
+    return
+end
+
 eq_num = zeros(length(folders),1);
 eq_denom = zeros(length(folders),1);
 
@@ -196,6 +206,12 @@ try % use a try/catch block to run the code and save anything that has already r
         
         % Create loop to analyze every sample's folder within the overall
         % folder
+        if length(sub_folders)==0
+            fprintf(2,'\n----------------------ERROR-----------------------\n');
+            fprintf(2,'Your files are not properly organized.\nSee line 43 in the code and set up your folders according to the prescribed hierarchy.\n');
+            return
+        end
+            
         for k=1:length(sub_folders)
             
             tic
