@@ -18,6 +18,19 @@ Geometry + mechanical code for collaborator use.
   organized, run this code to get geometry and TMD values. Geometry outputs are
   needed to run bend_bose_excelgeom_fc.
   
+# 1b. CT_geom_NO_PHANTOM_fc
+- CT (processing code for uCT ROI image outputs)
+- geom (calculates geometric properties)
+- NO_PHANTOM (for use with data for which no phantom was scanned)
+- fc (for collaborator use)
+
+  Function: This program does everything CT_geom does, except it does not calculate
+ TMD since it does not take phantom value inputs.
+  
+  Use: After CT outputs have been rotated and ROIs have been batch-processed and 
+  organized, run this code to get geometry values. Geometry outputs are needed
+  to run bend_bose_excelgeom_fc.
+  
 # 2. bend_bose_excelgeom_fc
 - bend (for processing 3/4 pt bending test outputs)
 - bose (from tests performed on the BOSE system)
