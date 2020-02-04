@@ -1,5 +1,5 @@
 # Collab
-Geometry + mechanical code for collaborator use ONLY.
+Geometry + mechanical code for collaborator use.
 
 # 1. CT_geom_fc
 - CT (processing code for uCT ROI image outputs)
