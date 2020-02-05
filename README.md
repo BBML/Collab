@@ -1,10 +1,10 @@
 # Collab
 Geometry + mechanical code for collaborator use.
 
-# 1. CT_geom_fc
+# 1. CT_geom_v20
 - CT (processing code for uCT ROI image outputs)
 - geom (calculates geometric properties)
-- fc (for collaborator use)
+- v20 (Version 2020)
 
   Function: This program reads grayscale .bmp images from CT, applies a theshold,
   removes everything except the bone, fills in pores, and calculates
@@ -18,6 +18,8 @@ Geometry + mechanical code for collaborator use.
   organized, run this code to get geometry and TMD values. Geometry outputs are
   needed to run bend_bose_excelgeom_fc.
   
+  Protocol: CTgeom_PROTOCOL.docx
+  
 # 1b. CT_geom_NO_PHANTOM_fc
 - CT (processing code for uCT ROI image outputs)
 - geom (calculates geometric properties)
@@ -30,6 +32,8 @@ Geometry + mechanical code for collaborator use.
   Use: After CT outputs have been rotated and ROIs have been batch-processed and 
   organized, run this code to get geometry values. Geometry outputs are needed
   to run bend_bose_excelgeom_fc.
+    
+  Protocol: CTgeom_PROTOCOL.docx
   
 # 2. bend_bose_excelgeom_fc
 - bend (for processing 3/4 pt bending test outputs)
@@ -50,4 +54,18 @@ Geometry + mechanical code for collaborator use.
   
   Use: After mechanical tests have been performed and CT_geom_fc has been run to
   calculate geometric properties, use this code to calculate mechanical properties.
+  
+  Protocol: bend_bose_PROTOCOL.docx
+  
+# 3. AUTO_mech_prop_bbml
+- AUTO (batch process code)
+- mech_prop (for calculating mechanical properties
+- bbml (written for the BBML lab)
 
+  Function: This is a batch process version of #2. All the same values are calculated,
+  all the same plots are output, but the user does not need to select any points. 
+  
+  Use: After mechanical tests have been performed and CT_geom_fc has been run to
+  calculate geometric properties, use this code to calculate mechanical properties.
+  
+  Protocol: AUTO_mech_prop_PROTOCOL.docx
